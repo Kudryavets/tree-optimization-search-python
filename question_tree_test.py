@@ -1,5 +1,4 @@
 import unittest
-from timeit import default_timer as timer
 from question_tree import QuestionRoot
 
 
@@ -33,10 +32,10 @@ class TestStringMethods(unittest.TestCase):
         tree.add_question("Bears", "Why bears are so big?")
         tree.add_question("White", "Why white bears are so white?")
         tree.add_question("Bears", "If any bear can fly?")
-        self.assertEqual(tree.question_search("Bears", "Why"), 2)
-        self.assertEqual(tree.question_search("Mammals", "If"), 1)
-        self.assertEqual(tree.question_search("White", "Why"), 1)
-        self.assertEqual(tree.question_search("Reptiles", "Why"), 0)
+        self.assertEqual(tree.question_count("Bears", "Why"), 2)
+        self.assertEqual(tree.question_count("Mammals", "If"), 1)
+        self.assertEqual(tree.question_count("White", "Why"), 1)
+        self.assertEqual(tree.question_count("Reptiles", "Why"), 0)
 
     def test_question_tree(self):
         tree = QuestionRoot("Animals ( Reptiles Birds ( Eagles Pigeons Crows ) )")
