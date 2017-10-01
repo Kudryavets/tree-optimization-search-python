@@ -2,7 +2,7 @@
 
 ----
 
-This is the attempt to solve [optimizing search problem](https://www.hackerrank.com/contests/quora-haqathon/challenges/ontology) in python 
+This is the attempt to solve [optimizing look-up problem](https://www.hackerrank.com/contests/quora-haqathon/challenges/ontology) in python 
 via trees and recursion.
 
 ## Problem
