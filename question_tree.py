@@ -1,38 +1,22 @@
 import re
 import collections
-import ast
+import json
 
 
 class Tree:
-    def __init__(self, name):
+    def __init__(self, name, json_tree):
         self.name = name
-        self.branch_names = {name}
-        self.children = []
+        self.children = [Tree(child_name, child_json) for child_name, child_json in json_tree.items()]
+        self.all_children_names = {name}
+        self.extract_all_names(json_tree)
         self.items = []
+
+    def extract_all_names(self, json_tree):
+        self.all_children_names.update(json_tree.keys())
+        [self.extract_all_names(value) for value in json_tree.values()]
 
     def add_item(self, question):
         self.items.append(question)
-
-    def grow_tree(self, parsed_tree):
-        if parsed_tree:
-            child = self.add_child(parsed_tree.pop(0))
-            if parsed_tree:
-                possible_child = parsed_tree[0]
-                if isinstance(possible_child, list):
-                    child.extend_branch_names(possible_child)
-                    child.grow_tree(possible_child)
-                    self.grow_tree(parsed_tree[1:])
-                else:
-                    self.grow_tree(parsed_tree)
-
-    def add_child(self, name):
-        self.branch_names.add(name)
-        l = Tree(name)
-        self.children.append(l)
-        return l
-
-    def extend_branch_names(self, parsed_tree):
-        self.branch_names.update(set(flatten(parsed_tree)))
 
     def traverse(self, name):
         if self.name == name:
@@ -41,7 +25,7 @@ class Tree:
             return next((child for child in self.children if child.contains_name(name))).traverse(name)
 
     def contains_name(self, name):
-        return name in self.branch_names
+        return name in self.all_children_names
 
     def count_questions(self, pattern):
         return sum([1 for q in self.items if q.startswith(pattern)]) + \
@@ -62,18 +46,19 @@ class Tree:
 
 class QuestionRoot(Tree):
     def __init__(self, flat_tree):
-        name, parsed_children = self.parse_f_tree(flat_tree)
-        Tree.__init__(self, name)
-        self.grow_tree(parsed_children)
+        json_tree = self.parse_f_tree(flat_tree)
+        name = list(json_tree.keys())[0]
+        Tree.__init__(self, name, json_tree[name])
 
     @staticmethod
     def parse_f_tree(f_tree):
-        f_tree = f_tree.rstrip()
-        f_tree = re.sub("(?P<word>\w+)", "'\g<word>',", f_tree)
-        f_tree = re.sub("\) ", "), ", f_tree)
-        f_tree = re.sub("\)", "]", f_tree)
-        f_tree = re.sub("\(", "[", f_tree)
-        return list(ast.literal_eval(f_tree))
+        f_tree = re.sub("(?P<word>\w+)", '"\g<word>"', f_tree)
+        f_tree = re.sub('" "', '": {}, "', f_tree)
+        f_tree = re.sub('" \)', '": {} )', f_tree)
+        f_tree = re.sub(' \(', ': {', f_tree)
+        f_tree = re.sub(' \) "', ' }, "', f_tree)
+        f_tree = re.sub(' \)', ' }', f_tree)
+        return json.loads("{ %s }" % f_tree)
 
     def add_question(self, name, question):
         if name == self.name:
@@ -92,6 +77,7 @@ def flatten(l):
             yield from flatten(el)
         else:
             yield el
+
 
 if __name__ == "__main__":
     # Script for submission

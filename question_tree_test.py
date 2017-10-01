@@ -8,7 +8,9 @@ class TestStringMethods(unittest.TestCase):
 
     def test_parse_f_tree(self):
         self.assertEqual(QuestionRoot.parse_f_tree(self.flat_tree),
-                         ["Animals", ["Reptiles", "Birds", ["Eagles", "Pigeons", "Crows"], "Mammals", ["Bears", ["Grizzly", "White"]]]])
+                         {'Animals': {'Birds': {'Crows': {}, 'Eagles': {}, 'Pigeons': {}},
+                                      'Mammals': {'Bears': {'Grizzly': {}, 'White': {}}},
+                                      'Reptiles': {}}})
 
     def test_grow_tree(self):
         tree = QuestionRoot(self.flat_tree)
@@ -43,6 +45,7 @@ class TestStringMethods(unittest.TestCase):
         tree.add_question("Eagles", "How endangered are eagles?")
         tree.add_question("Pigeons", "Where in the world are pigeons most densely populated?")
         tree.add_question("Eagles", "Where do most eagles live?")
+
 
 if __name__ == '__main__':
     unittest.main()
